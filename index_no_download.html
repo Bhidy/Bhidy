@@ -1,0 +1,624 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Saudi Aramco (2222) Stock Analysis Report</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        h1, h2 {
+            color: #0288D1;
+        }
+        .section {
+            margin-bottom: 40px;
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        canvas {
+            max-width: 100%;
+            height: auto;
+            margin: 20px 0;
+        }
+        .download-btn {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-bottom: 20px;
+        }
+        .download-btn:hover {
+            background-color: #388E3C;
+        }
+        .disclaimer {
+            font-size: 14px;
+            color: #666;
+            margin-top: 20px;
+        }
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            .section {
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Saudi Aramco (2222) Stock Analysis Report – May 23, 2025</h1>
+    
+    <div class="section">
+        <h2>Overview</h2>
+        <p>Saudi Aramco, the world’s leading oil and gas company, excels in production and dividends, making it a cornerstone for energy and income-focused portfolios. This report summarizes Aramco’s performance, news, sentiment, and outlook, supported by 18 dynamic charts to guide your investment decisions.</p>
+        <p class="disclaimer"><strong>Disclaimer</strong>: This report is for informational purposes only and not financial advice. Investing involves risks, including potential loss of capital. Consult a financial advisor before making decisions.</p>
+    </div>
+
+    <div class="section">
+        <h2>1. Recent Performance</h2>
+        <p><strong>Summary</strong>: Aramco’s stock price is SAR 26.20, up 0.38% daily but down 10.9% year-to-date, trailing the Tadawul All Share Index (TASI, -4.96% YTD). Q1 2025 net income dropped 4.6% to SAR 97.54 billion, but revenue (SAR 405.65 billion) exceeded estimates, showing resilience amid low oil prices (~$70/barrel).</p>
+        <p><strong>Key Metrics</strong>:</p>
+        <ul>
+            <li><strong>Market Cap</strong>: SAR 6.31 trillion ($1.68 trillion USD)</li>
+            <li><strong>52-Week Range</strong>: SAR 24.88–33.30</li>
+            <li><strong>EPS</strong>: SAR 0.40 (Q1 2025)</li>
+            <li><strong>Free Cash Flow</strong>: SAR 19.2 billion, down 15.8% YoY</li>
+        </ul>
+        <canvas id="chart1_1"></canvas>
+        <canvas id="chart1_2"></canvas>
+        <canvas id="chart1_3"></canvas>
+    </div>
+
+    <div class="section">
+        <h2>2. News Impact</h2>
+        <p><strong>Summary</strong>: Q1 2025 profits fell 4.6% to SAR 97.54 billion, with dividends cut to SAR 85.4 billion from SAR 124.2 billion. OPEC+ increased output by 411,000 bpd, potentially dropping Brent to $60/barrel. U.S. tariffs reduced Aramco’s value by SAR 350 billion, but $90 billion in U.S. AI/energy deals and a BYD EV partnership signal growth.</p>
+        <canvas id="chart2_1"></canvas>
+        <canvas id="chart2_2"></canvas>
+        <canvas id="chart2_3"></canvas>
+    </div>
+
+    <div class="section">
+        <h2>3. Sentiment Analysis</h2>
+        <p><strong>Summary</strong>: X sentiment is mixed: 40% positive (praising 7% dividend yield), 35% negative (citing dividend cuts), and 25% neutral (focusing on AI). Analysts rate Aramco a “Buy” (1.50/5, 27 analysts) with a SAR 69.00 target (163% upside), despite TASI’s bearish mood (-4.96% YTD).</p>
+        <canvas id="chart3_1"></canvas>
+        <canvas id="chart3_2"></canvas>
+        <canvas id="chart3_3"></canvas>
+    </div>
+
+    <div class="section">
+        <h2>4. Fundamental Analysis</h2>
+        <p><strong>Summary</strong>: Aramco’s 7% dividend yield and SAR 866.62 billion EBITDA (48.72% margin) reflect financial strength, but a P/E ratio of 16 (vs. sector 10) and 12% net income decline (SAR 106.2 billion in 2024) show oil price challenges. Analysts target SAR 69.00, implying 163% upside.</p>
+        <p><strong>Key Metrics</strong>:</p>
+        <ul>
+            <li><strong>Dividend Yield</strong>: 7% (SAR 1.82/share)</li>
+            <li><strong>EPS (TTM)</strong>: SAR 1.60</li>
+            <li><strong>Revenue (Q1 2025)</strong>: SAR 405.65 billion</li>
+            <li><strong>Risks</strong>: Low oil prices, dividend cuts, Vision 2030 costs</li>
+        </ul>
+        <canvas id="chart4_1"></canvas>
+        <canvas id="chart4_2"></canvas>
+        <canvas id="chart4_3"></canvas>
+    </div>
+
+    <div class="section">
+        <h2>5. Technical Analysis</h2>
+        <p><strong>Summary</strong>: At SAR 26.20, Aramco’s stock is in a downtrend but nearing support (SAR 23.90–25.50), with resistance at SAR 26.90–27.55. A Strong Buy signal, 3.37% volatility, and 0.50 beta suggest stability and potential upside.</p>
+        <p><strong>Key Metrics</strong>:</p>
+        <ul>
+            <li><strong>Trade Idea</strong>: Buy at SAR 23.90–25.50, target SAR 27.55, stop loss SAR 23.00</li>
+            <li><strong>Volatility</strong>: 3.37%</li>
+            <li><strong>Beta</strong>: 0.50</li>
+        </ul>
+        <canvas id="chart5_1"></canvas>
+        <canvas id="chart5_2"></canvas>
+        <canvas id="chart5_3"></canvas>
+    </div>
+
+    <div class="section">
+        <h2>6. Predictive Analytics</h2>
+        <p><strong>Summary</strong>: Brent oil prices may drop to $60/barrel in 2025 and $56/barrel in 2026, impacting revenue. OPEC+ output increases (411,000 bpd in June 2025) add pressure, but AI, gas, and Downstream initiatives could add SAR 17–20 billion in cash flow by 2030. August 2025 earnings (EPS SAR 0.38) may drive gains, with analysts targeting SAR 69.00.</p>
+        <canvas id="chart6_1"></canvas>
+        <canvas id="chart6_2"></canvas>
+        <canvas id="chart6_3"></canvas>
+    </div>
+
+    <div class="section">
+        <h2>Conclusion</h2>
+        <p>Aramco’s stock, at SAR 26.20, is down 10.9% YTD due to low oil prices ($70/barrel) and a dividend cut to SAR 85.4 billion. Its 7% dividend yield, Q1 2025 profits (SAR 97.54 billion), and AI/gas investments support its value, with analysts targeting SAR 69.00 (163% upside). The 18 charts clarify performance, news, sentiment, financials, technicals, and forecasts to inform your strategy.</p>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script>
+        const { jsPDF } = window.jspdf;
+
+        // Function to handle click events on charts
+        function handleChartClick(event, chart) {
+            const activePoints = chart.getElementsAtEventForMode(event, 'nearest', { intersect: true }, true);
+            if (activePoints.length) {
+                const point = activePoints[0];
+                const dataset = chart.data.datasets[point.datasetIndex];
+                const value = dataset.data[point.index];
+                const label = chart.data.labels ? chart.data.labels[point.index] : '';
+                alert(`Clicked: ${dataset.label} - ${label} - Value: ${value}`);
+            }
+        }
+
+        // Chart configurations with tooltips and click events
+        const charts = [
+            {
+                id: 'chart1_1',
+                config: {
+                    type: 'line',
+                    data: {
+                        labels: ['Jan 1', 'Feb 1', 'Mar 1', 'Apr 1', 'May 23'],
+                        datasets: [{
+                            label: 'Price (SAR)',
+                            data: [29.30, 28.50, 27.80, 24.88, 26.20],
+                            borderColor: '#0288D1',
+                            backgroundColor: 'rgba(2, 136, 209, 0.3)',
+                            fill: true,
+                            tension: 0.4
+                        }]
+                    },
+                    options: {
+                        plugins: {
+                            tooltip: { enabled: true },
+                            title: { display: true, text: 'Aramco Price Trend (2025)' }
+                        },
+                        onClick: (e, _, chart) => handleChartClick(e, chart)
+                    }
+                }
+            },
+            {
+                id: 'chart1_2',
+                config: {
+                    type: 'bar',
+                    data: {
+                        labels: ['Aramco', 'TASI'],
+                        datasets: [{
+                            label: 'YTD Performance (%)',
+                            data: [-10.9, -4.96],
+                            backgroundColor: ['#0288D1', '#FBC02D'],
+                            borderColor: ['#01579B', '#F57F17'],
+                            borderWidth: 2
+                        }]
+                    },
+                    options: {
+                        plugins: {
+                            tooltip: { enabled: true },
+                            title: { display: true, text: 'Aramco vs. TASI (2025)' }
+                        },
+                        onClick: (e, _, chart) => handleChartClick(e, chart)
+                    }
+                }
+            },
+            {
+                id: 'chart1_3',
+                config: {
+                    type: 'line',
+                    data: {
+                        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May'],
+                        datasets: [{
+                            label: 'Relative Volume',
+                            data: [100, 110, 95, 120, 105],
+                            borderColor: '#7B1FA2',
+                            backgroundColor: 'rgba(123, 31, 162, 0.3)',
+                            fill: true,
+                            tension: 0.4
+                        }]
+                    },
+                    options: {
+                        plugins: {
+                            tooltip: { enabled: true },
+                            title: { display: true, text: 'Aramco Volume Trend (2025)' }
+                        },
+                        onClick: (e, _, chart) => handleChartClick(e, chart)
+                    }
+                }
+            },
+            {
+                id: 'chart2_1',
+                config: {
+                    type: 'bar',
+                    data: {
+                        labels: ['Q1 Earnings', 'Dividend Cut', 'OPEC+ Output', 'U.S. MoUs'],
+                        datasets: [{
+                            label: 'Price Change (%)',
+                            data: [-2.5, -3.0, -4.0, 1.5],
+                            backgroundColor: ['#FF5252', '#FF5252', '#FF5252', '#4CAF50'],
+                            borderColor: ['#D32F2F', '#D32F2F', '#D32F2F', '#388E3C'],
+                            borderWidth: 2
+                        }]
+                    },
+                    options: {
+                        plugins: {
+                            tooltip: { enabled: true },
+                            title: { display: true, text: 'News Impact on Aramco (2025)' }
+                        },
+                        onClick: (e, _, chart) => handleChartClick(e, chart)
+                    }
+                }
+            },
+            {
+                id: 'chart2_2',
+                config: {
+                    type: 'bar',
+                    data: {
+                        labels: ['2021', '2022', '2023', '2024', '2025 (Est)'],
+                        datasets: [{
+                            label: 'Dividends (SAR Billion)',
+                            data: [70.8, 72.6, 101.4, 124.2, 85.4],
+                            backgroundColor: ['#4CAF50', '#4CAF50', '#4CAF50', '#4CAF50', '#FF5252'],
+                            borderColor: ['#388E3C', '#388E3C', '#388E3C', '#388E3C', '#D32F2F'],
+                            borderWidth: 2
+                        }]
+                    },
+                    options: {
+                        plugins: {
+                            tooltip: { enabled: true },
+                            title: { display: true, text: 'Aramco Dividends (2021–2025)' }
+                        },
+                        onClick: (e, _, chart) => handleChartClick(e, chart)
+                    }
+                }
+            },
+            {
+                id: 'chart2_3',
+                config: {
+                    type: 'line',
+                    data: {
+                        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May'],
+                        datasets: [
+                            {
+                                label: 'Stock Price (SAR)',
+                                data: [29.30, 28.50, 27.80, 24.88, 26.20],
+                                borderColor: '#0288D1',
+                                fill: false
+                            },
+                            {
+                                label: 'Brent Oil ($/barrel)',
+                                data: [75, 73, 72, 68, 70],
+                                borderColor: '#FBC02D',
+                                fill: false
+                            }
+                        ]
+                    },
+                    options: {
+                        plugins: {
+                            tooltip: { enabled: true },
+                            title: { display: true, text: 'Aramco Stock vs. Oil Price (2025)' }
+                        },
+                        onClick: (e, _, chart) => handleChartClick(e, chart)
+                    }
+                }
+            },
+            {
+                id: 'chart3_1',
+                config: {
+                    type: 'pie',
+                    data: {
+                        labels: ['Positive', 'Negative', 'Neutral'],
+                        datasets: [{
+                            data: [40, 35, 25],
+                            backgroundColor: ['#4CAF50', '#FF5252', '#FBC02D'],
+                            borderColor: ['#388E3C', '#D32F2F', '#F57F17'],
+                            borderWidth: 2
+                        }]
+                    },
+                    options: {
+                        plugins: {
+                            tooltip: { enabled: true },
+                            title: { display: true, text: 'Aramco X Sentiment (2025)' }
+                        },
+                        onClick: (e, _, chart) => handleChartClick(e, chart)
+                    }
+                }
+            },
+            {
+                id: 'chart3_2',
+                config: {
+                    type: 'bar',
+                    data: {
+                        labels: ['X Positive (%)', 'Analyst Buy (%)'],
+                        datasets: [{
+                            label: 'Sentiment',
+                            data: [40, 85],
+                            backgroundColor: ['#0288D1', '#4CAF50'],
+                            borderColor: ['#01579B', '#388E3C'],
+                            borderWidth: 2
+                        }]
+                    },
+                    options: {
+                        plugins: {
+                            tooltip: { enabled: true },
+                            title: { display: true, text: 'X vs. Analyst Sentiment (2025)' }
+                        },
+                        onClick: (e, _, chart) => handleChartClick(e, chart)
+                    }
+                }
+            },
+            {
+                id: 'chart3_3',
+                config: {
+                    type: 'line',
+                    data: {
+                        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May'],
+                        datasets: [{
+                            label: 'Positive Sentiment (%)',
+                            data: [50, 45, 35, 30, 40],
+                            borderColor: '#7B1FA2',
+                            backgroundColor: 'rgba(123, 31, 162, 0.3)',
+                            fill: true,
+                            tension: 0.4
+                        }]
+                    },
+                    options: {
+                        plugins: {
+                            tooltip: { enabled: true },
+                            title: { display: true, text: 'Aramco Sentiment Trend (2025)' }
+                        },
+                        onClick: (e, _, chart) => handleChartClick(e, chart)
+                    }
+                }
+            },
+            {
+                id: 'chart4_1',
+                config: {
+                    type: 'bar',
+                    data: {
+                        labels: ['P/E Ratio', 'Dividend Yield (%)', 'EBITDA Margin (%)'],
+                        datasets: [
+                            { label: 'Aramco', data: [16, 7, 48.72], backgroundColor: '#0288D1' },
+                            { label: 'Sector', data: [10, 4, 30], backgroundColor: '#FBC02D' }
+                        ]
+                    },
+                    options: {
+                        plugins: {
+                            tooltip: { enabled: true },
+                            title: { display: true, text: 'Aramco vs. Sector (2025)' }
+                        },
+                        onClick: (e, _, chart) => handleChartClick(e, chart)
+                    }
+                }
+            },
+            {
+                id: 'chart4_2',
+                config: {
+                    type: 'line',
+                    data: {
+                        labels: ['2021', '2022', '2023', '2024', '2025'],
+                        datasets: [{
+                            label: 'Dividend Yield (%)',
+                            data: [4.5, 4.8, 5.5, 6.2, 7.0],
+                            borderColor: '#4CAF50',
+                            backgroundColor: 'rgba(76, 175, 80, 0.3)',
+                            fill: true,
+                            tension: 0.4
+                        }]
+                    },
+                    options: {
+                        plugins: {
+                            tooltip: { enabled: true },
+                            title: { display: true, text: 'Aramco Dividend Yield (2021–2025)' }
+                        },
+                        onClick: (e, _, chart) => handleChartClick(e, chart)
+                    }
+                }
+            },
+            {
+                id: 'chart4_3',
+                config: {
+                    type: 'bar',
+                    data: {
+                        labels: ['Q1 2024', 'Q1 2025'],
+                        datasets: [
+                            { label: 'Revenue (SAR Billion)', data: [400.0, 405.65], backgroundColor: '#0288D1' },
+                            { label: 'Net Income (SAR Billion)', data: [102.3, 97.54], backgroundColor: '#FBC02D' }
+                        ]
+                    },
+                    options: {
+                        plugins: {
+                            tooltip: { enabled: true },
+                            title: { display: true, text: 'Revenue vs. Income (Q1 2024–2025)' }
+                        },
+                        onClick: (e, _, chart) => handleChartClick(e, chart)
+                    }
+                }
+            },
+            {
+                id: 'chart5_1',
+                config: {
+                    type: 'line',
+                    data: {
+                        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May'],
+                        datasets: [
+                            { label: 'Price (SAR)', data: [29.30, 28.50, 27.80, 24.88, 26.20], borderColor: '#0288D1', fill: false },
+                            { label: 'Support (SAR 23.90)', data: [23.90, 23.90, 23.90, 23.90, 23.90], borderColor: '#4CAF50', borderDash: [5, 5], fill: false },
+                            { label: 'Resistance (SAR 27.55)', data: [27.55, 27.55, 27.55, 27.55, 27.55], borderColor: '#FF5252', borderDash: [5, 5], fill: false }
+                        ]
+                    },
+                    options: {
+                        plugins: {
+                            tooltip: { enabled: true },
+                            title: { display: true, text: 'Aramco Support/Resistance (2025)' }
+                        },
+                        onClick: (e, _, chart) => handleChartClick(e, chart)
+                    }
+                }
+            },
+            {
+                id: 'chart5_2',
+                config: {
+                    type: 'bar',
+                    data: {
+                        labels: ['Aramco', 'TASI'],
+                        datasets: [{
+                            label: 'Volatility (%)',
+                            data: [3.37, 5.0],
+                            backgroundColor: ['#0288D1', '#FBC02D'],
+                            borderColor: ['#01579B', '#F57F17'],
+                            borderWidth: 2
+                        }]
+                    },
+                    options: {
+                        plugins: {
+                            tooltip: { enabled: true },
+                            title: { display: true, text: 'Aramco vs. TASI Volatility (2025)' }
+                        },
+                        onClick: (e, _, chart) => handleChartClick(e, chart)
+                    }
+                }
+            },
+            {
+                id: 'chart5_3',
+                config: {
+                    type: 'line',
+                    data: {
+                        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May'],
+                        datasets: [
+                            { label: 'Price (SAR)', data: [29.30, 28.50, 27.80, 24.88, 26.20], borderColor: '#0288D1', fill: false },
+                            { label: '50-Day MA', data: [29.50, 29.00, 28.50, 27.00, 26.50], borderColor: '#7B1FA2', fill: false }
+                        ]
+                    },
+                    options: {
+                        plugins: {
+                            tooltip: { enabled: true },
+                            title: { display: true, text: 'Price vs. 50-Day MA (2025)' }
+                        },
+                        onClick: (e, _, chart) => handleChartClick(e, chart)
+                    }
+                }
+            },
+            {
+                id: 'chart6_1',
+                config: {
+                    type: 'bar',
+                    data: {
+                        labels: ['Bull ($80)', 'Base ($60)', 'Bear ($50)'],
+                        datasets: [{
+                            label: 'Price (SAR)',
+                            data: [30.00, 26.20, 23.00],
+                            backgroundColor: ['#4CAF50', '#FBC02D', '#FF5252'],
+                            borderColor: ['#388E3C', '#F57F17', '#D32F2F'],
+                            borderWidth: 2
+                        }]
+                    },
+                    options: {
+                        plugins: {
+                            tooltip: { enabled: true },
+                            title: { display: true, text: 'Price Forecast (End 2025)' }
+                        },
+                        onClick: (e, _, chart) => handleChartClick(e, chart)
+                    }
+                }
+            },
+            {
+                id: 'chart6_2',
+                config: {
+                    type: 'bar',
+                    data: {
+                        labels: ['Aug Earnings', 'OPEC+ (Jun)', 'AI News'],
+                        datasets: [{
+                            label: 'Price Impact (%)',
+                            data: [5.0, -3.0, 2.5],
+                            backgroundColor: ['#4CAF50', '#FF5252', '#0288D1'],
+                            borderColor: ['#388E3C', '#D32F2F', '#01579B'],
+                            borderWidth: 2
+                        }]
+                    },
+                    options: {
+                        plugins: {
+                            tooltip: { enabled: true },
+                            title: { display: true, text: '2025 Catalysts Impact' }
+                        },
+                        onClick: (e, _, chart) => handleChartClick(e, chart)
+                    }
+                }
+            },
+            {
+                id: 'chart6_3',
+                config: {
+                    type: 'line',
+                    data: {
+                        labels: ['May 2025', 'Aug 2025', 'Dec 2025', 'Jun 2026'],
+                        datasets: [{
+                            label: 'Brent Oil ($/barrel)',
+                            data: [70, 65, 60, 56],
+                            borderColor: '#FBC02D',
+                            backgroundColor: 'rgba(251, 192, 45, 0.3)',
+                            fill: true,
+                            tension: 0.4
+                        }]
+                    },
+                    options: {
+                        plugins: {
+                            tooltip: { enabled: true },
+                            title: { display: true, text: 'Oil Price Forecast (2025–2026)' }
+                        },
+                        onClick: (e, _, chart) => handleChartClick(e, chart)
+                    }
+                }
+            }
+        ];
+
+        // Initialize charts
+        charts.forEach(chart => {
+            const ctx = document.getElementById(chart.id).getContext('2d');
+            new Chart(ctx, chart.config);
+        });
+
+            </script>
+</body>
+</html>
