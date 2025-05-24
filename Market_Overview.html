@@ -1,0 +1,1160 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <title>Saudi Market Overview – Powered by AI</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #f5f7fa, #e0e7ff);
+            color: #333333;
+            line-height: 1.5;
+            overflow-x: hidden;
+            -webkit-tap-highlight-color: transparent;
+        }
+        header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 8px 12px;
+            background: linear-gradient(90deg, #1e3a8a, #3b82f6);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        .header-title {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: #ffffff;
+            margin: 0;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+        .header-tagline {
+            font-size: 0.75rem;
+            font-weight: 300;
+            color: #e0e0e0;
+            margin: 2px 0 0;
+            text-align: center;
+        }
+        h2 {
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: #1e3a8a;
+            padding: 10px 12px;
+            margin: 0;
+            background: linear-gradient(90deg, rgba(30, 58, 138, 0.05), rgba(59, 130, 246, 0.05));
+            border-bottom: 1px solid #e0e0e0;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .section {
+            margin: 8px 8px;
+            background: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+            animation: slideIn 0.5s ease-in;
+            transition: transform 0.3s ease;
+        }
+        .section:hover {
+            transform: translateY(-3px);
+        }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .section-content {
+            padding: 12px;
+        }
+        .market-summary {
+            padding: 12px;
+            background: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            margin: 8px 8px;
+        }
+        .market-highlights {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+        .highlight-item {
+            flex: 1 1 calc(50% - 8px);
+            background: linear-gradient(135deg, #ffffff, #f9fafb);
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid rgba(224, 224, 224, 0.5);
+            text-align: center;
+            min-height: 100px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .highlight-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        .highlight-item h3 {
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: #1e3a8a;
+            margin: 0 0 4px;
+        }
+        .highlight-item p {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #333333;
+            margin: 0;
+        }
+        .sentiment-indicator {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        .sentiment-indicator.bullish {
+            background: #10b981;
+            color: #ffffff;
+        }
+        .sentiment-details {
+            background: rgba(249, 250, 251, 0.9);
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 12px;
+            border-left: 4px solid #1e3a8a;
+        }
+        .sentiment-details p {
+            font-size: 0.85rem;
+            color: #666666;
+            margin: 0 0 8px;
+        }
+        .gainers-losers {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 12px;
+            gap: 8px;
+        }
+        .gainers, .losers {
+            flex: 1;
+            margin: 0;
+        }
+        .gainers h3, .losers h3 {
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: #1e3a8a;
+            margin-bottom: 8px;
+            text-align: center;
+        }
+        .stock-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+            padding: 8px;
+            border-radius: 6px;
+            background: rgba(249, 250, 251, 0.8);
+            transition: background 0.3s ease;
+        }
+        .stock-item:hover {
+            background: rgba(249, 250, 251, 1);
+        }
+        .stock-item canvas {
+            width: 35px !important;
+            height: 35px !important;
+            margin-right: 8px;
+        }
+        .stock-name {
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: #333333;
+        }
+        .stock-change {
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+        .stock-change.positive {
+            color: #10b981;
+        }
+        .stock-change.negative {
+            color: #ef4444;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            height: 220px;
+            margin: 12px 0;
+        }
+        canvas {
+            width: 100% !important;
+            height: 220px !important;
+            border-radius: 6px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+        }
+        .carousel {
+            display: flex;
+            overflow-x: auto;
+            scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch;
+            padding-bottom: 8px;
+            gap: 8px;
+        }
+        .carousel .chart-container {
+            min-width: 100%;
+            flex: 0 0 100%;
+        }
+        .chart-toggle {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 12px;
+        }
+        .chart-toggle button {
+            padding: 6px 12px;
+            margin: 0 4px;
+            border: 1px solid #e0e0e0;
+            background: #ffffff;
+            color: #1e3a8a;
+            font-size: 0.8rem;
+            font-weight: 500;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .chart-toggle button.active {
+            background: #1e3a8a;
+            color: #ffffff;
+            border-color: #1e3a8a;
+        }
+        .event-list {
+            padding: 0;
+            list-style: none;
+        }
+        .event-list li {
+            position: relative;
+            padding-left: 18px;
+            margin-bottom: 12px;
+            font-size: 0.85rem;
+            color: #666666;
+        }
+        .event-list li::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 4px;
+            width: 6px;
+            height: 6px;
+            background: #1e3a8a;
+            border-radius: 50%;
+        }
+        .event-list li::after {
+            content: '';
+            position: absolute;
+            left: 2px;
+            top: 10px;
+            bottom: -12px;
+            width: 2px;
+            background: #e0e0e0;
+        }
+        .event-list li:last-child::after {
+            display: none;
+        }
+        .news-item {
+            background: rgba(249, 250, 251, 0.9);
+            padding: 10px;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            border-left: 3px solid #1e3a8a;
+        }
+        .news-item h3 {
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: #1e3a8a;
+            margin: 0 0 4px;
+        }
+        .news-item p {
+            font-size: 0.8rem;
+            color: #666666;
+            margin: 0;
+        }
+        .news-item a {
+            font-size: 0.8rem;
+            color: #1e3a8a;
+            text-decoration: none;
+        }
+        .sentiment-score {
+            display: flex;
+            align-items: center;
+            font-size: 0.8rem;
+            font-weight: 500;
+            margin-top: 4px;
+        }
+        .sentiment-score.positive {
+            color: #10b981;
+        }
+        .sentiment-score.negative {
+            color: #ef4444;
+        }
+        .sentiment-score.neutral {
+            color: #666666;
+        }
+        .sentiment-score::before {
+            content: '';
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            margin-right: 4px;
+        }
+        .sentiment-score.positive::before {
+            background: #10b981;
+        }
+        .sentiment-score.negative::before {
+            background: #ef4444;
+        }
+        .sentiment-score.neutral::before {
+            background: #666666;
+        }
+        .ai-insight {
+            background: rgba(249, 250, 251, 0.9);
+            padding: 10px;
+            border-radius: 6px;
+            margin: 8px 0;
+            font-size: 0.85rem;
+            font-weight: 400;
+            color: #333333;
+            border-left: 3px solid #1e3a8a;
+            transition: transform 0.3s ease;
+        }
+        .ai-insight:hover {
+            transform: translateX(3px);
+        }
+        .ai-insight strong {
+            font-weight: 500;
+            color: #1e3a8a;
+        }
+        .signal {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            margin-left: 6px;
+        }
+        .signal.bullish {
+            background: #10b981;
+            color: #ffffff;
+        }
+        .signal.bearish {
+            background: #ef4444;
+            color: #ffffff;
+        }
+        .signal.neutral {
+            background: #e0e0e0;
+            color: #333333;
+        }
+        .global-indices {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .index-item {
+            flex: 1 1 calc(50% - 8px);
+            background: linear-gradient(135deg, #ffffff, #f9fafb);
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid rgba(224, 224, 224, 0.5);
+            text-align: center;
+            min-height: 100px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .index-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        .index-item h3 {
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: #1e3a8a;
+            margin: 0 0 4px;
+        }
+        .index-item p {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #333333;
+            margin: 0;
+        }
+        .chatbot-section {
+            margin: 8px 8px;
+            background: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+        }
+        .chatbot-content {
+            padding: 12px;
+        }
+        .chatbot-input {
+            display: flex;
+            align-items: center;
+            padding: 8px 12px;
+            background: rgba(245, 246, 250, 0.9);
+            border-top: 1px solid #e0e0e0;
+        }
+        .chatbot-input input {
+            flex: 1;
+            padding: 6px 10px;
+            border: 1px solid #e0e0e0;
+            border-radius: 12px;
+            background: #ffffff;
+            color: #333333;
+            font-size: 0.85rem;
+            margin-right: 8px;
+        }
+        .chatbot-input button {
+            padding: 6px 12px;
+            border: none;
+            background: #1e3a8a;
+            color: #ffffff;
+            font-size: 0.8rem;
+            font-weight: 500;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+        .chatbot-input button:hover {
+            background: #3b82f6;
+        }
+        .chatbot-messages {
+            max-height: 180px;
+            overflow-y: auto;
+            padding: 8px 0;
+        }
+        .chatbot-message {
+            padding: 6px 10px;
+            margin-bottom: 8px;
+            border-radius: 6px;
+        }
+        .chatbot-message.user {
+            background: #1e3a8a;
+            color: #ffffff;
+            margin-left: 20%;
+            margin-right: 8px;
+        }
+        .chatbot-message.bot {
+            background: rgba(249, 250, 251, 0.9);
+            color: #333333;
+            margin-right: 20%;
+            margin-left: 8px;
+            border: 1px solid #e0e0e0;
+        }
+        .top-movers {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .mover-item {
+            flex: 1 1 calc(50% - 8px);
+            background: linear-gradient(135deg, #ffffff, #f9fafb);
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid rgba(224, 224, 224, 0.5);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .mover-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        .mover-item h3 {
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: #1e3a8a;
+            margin: 0 0 8px;
+            text-align: center;
+        }
+        .mover-item p {
+            font-size: 0.8rem;
+            color: #666666;
+            margin: 0 0 4px;
+        }
+        .technical-analysis {
+            background: rgba(249, 250, 251, 0.9);
+            padding: 10px;
+            border-radius: 6px;
+            border-left: 3px solid #1e3a8a;
+        }
+        .technical-analysis p {
+            font-size: 0.8rem;
+            color: #666666;
+            margin: 0 0 4px;
+        }
+        .newsfeed {
+            height: 40px;
+            overflow: hidden;
+            background: rgba(249, 250, 251, 0.9);
+            border-radius: 6px;
+            padding: 6px 10px;
+            border: 1px solid #e0e0e0;
+        }
+        .newsfeed p {
+            font-size: 0.8rem;
+            color: #1e3a8a;
+            margin: 0;
+            white-space: nowrap;
+            animation: scroll 15s linear infinite;
+        }
+        @keyframes scroll {
+            0% { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
+        }
+        .portfolio-snapshot {
+            background: rgba(249, 250, 251, 0.9);
+            padding: 10px;
+            border-radius: 6px;
+            border-left: 3px solid #1e3a8a;
+        }
+        .portfolio-snapshot p {
+            font-size: 0.8rem;
+            color: #666666;
+            margin: 0 0 4px;
+        }
+        footer {
+            padding: 8px 12px;
+            background: rgba(245, 246, 250, 0.9);
+            color: #666666;
+            text-align: center;
+            font-size: 0.8rem;
+            border-top: 1px solid #e0e0e0;
+        }
+        footer p {
+            margin: 0 0 4px;
+        }
+        footer a {
+            color: #1e3a8a;
+            text-decoration: none;
+        }
+        .error-message {
+            display: none;
+            color: #dc2626;
+            background: rgba(254, 226, 226, 0.9);
+            padding: 6px;
+            border-radius: 6px;
+            margin: 8px;
+            font-size: 0.8rem;
+            text-align: center;
+        }
+        @media (min-width: 768px) {
+            body {
+                padding: 12px;
+            }
+            .header-title {
+                font-size: 1.8rem;
+            }
+            h2 {
+                font-size: 1.3rem;
+            }
+            .carousel .chart-container {
+                min-width: 48%;
+                flex: 0 0 48%;
+                margin-right: 8px;
+            }
+            .carousel {
+                overflow-x: hidden;
+            }
+            .gainers-losers {
+                flex-direction: row;
+            }
+            .gainers, .losers {
+                margin: 0 4px;
+            }
+            .index-item, .highlight-item, .mover-item {
+                flex: 1 1 calc(33.33% - 8px);
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div>
+            <h1 class="header-title">Saudi Market Overview</h1>
+            <p class="header-tagline">Powered by AI – May 24, 2025</p>
+        </div>
+    </header>
+
+    <div id="error-message" class="error-message"></div>
+
+    <div class="market-summary">
+        <h2>Market Summary</h2>
+        <div class="market-highlights">
+            <div class="highlight-item">
+                <h3>TASI Index</h3>
+                <p>11,188.74</p>
+            </div>
+            <div class="highlight-item">
+                <h3>Daily Change</h3>
+                <p class="stock-change negative">-1.02% (-114.94)</p>
+            </div>
+            <div class="highlight-item">
+                <h3>YTD Change</h3>
+                <p>-7.02%</p>
+            </div>
+            <div class="highlight-item">
+                <h3>52-Week Range</h3>
+                <p>10,500–12,883</p>
+            </div>
+            <div class="highlight-item">
+                <h3>Market Sentiment</h3>
+                <p><span class="sentiment-indicator bullish">Bullish</span></p>
+            </div>
+        </div>
+        <div class="sentiment-details">
+            <p><strong>Factors Influencing Sentiment:</strong> Despite today’s -1.02% dip, investor confidence remains high due to stable oil prices at $73/barrel and Vision 2030 progress (65% completion). Energy sector resilience (+2.8% in Saudi Aramco) offsets declines in Petrochemicals (-8.3% YTD).</p>
+            <p><strong>Historical Trends:</strong> Over the past 6 months, TASI sentiment has shifted from neutral to bullish, driven by consistent Energy sector performance and global oil demand recovery. Previous dips (e.g., -2.5% in Feb 2025) were followed by 3% recoveries within 30 days.</p>
+            <p><strong>Sector Sentiment:</strong> Energy shows a bullish signal (42% market share, -5.0% YTD), while Petrochemicals remain neutral due to volatility (4.3%). Banking sector sentiment is neutral at -5.5% YTD, reflecting cautious investor outlook.</p>
+        </div>
+        <p><strong>AI Commentary:</strong> TASI at 11,188.74 reflects short-term volatility but maintains a bullish outlook, supported by Energy sector strength and economic stability.</p>
+        <div class="gainers-losers">
+            <div class="gainers">
+                <h3>Top Gainers</h3>
+                <div class="stock-item">
+                    <canvas id="gainerChart1"></canvas>
+                    <div>
+                        <div class="stock-name">Saudi Aramco</div>
+                        <div class="stock-change positive">+2.8%</div>
+                    </div>
+                </div>
+                <div class="stock-item">
+                    <canvas id="gainerChart2"></canvas>
+                    <div>
+                        <div class="stock-name">Al Rajhi Bank</div>
+                        <div class="stock-change positive">+2.3%</div>
+                    </div>
+                </div>
+            </div>
+            <div class="losers">
+                <h3>Top Losers</h3>
+                <div class="stock-item">
+                    <canvas id="loserChart1"></canvas>
+                    <div>
+                        <div class="stock-name">SABIC</div>
+                        <div class="stock-change negative">-2.0%</div>
+                    </div>
+                </div>
+                <div class="stock-item">
+                    <canvas id="loserChart2"></canvas>
+                    <div>
+                        <div class="stock-name">STC</div>
+                        <div class="stock-change negative">-1.5%</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="chart-container">
+            <canvas id="tasiTrendChart"></canvas>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>Sector Analysis</h2>
+        <div class="section-content">
+            <div class="carousel">
+                <div class="chart-container">
+                    <canvas id="sectorPerformanceChart"></canvas>
+                </div>
+                <div class="chart-container">
+                    <canvas id="marketCapChart"></canvas>
+                </div>
+                <div class="chart-container">
+                    <canvas id="volatilityChart"></canvas>
+                </div>
+            </div>
+            <p><strong>AI Insight:</strong> Energy sector leads with a 42% market share and -5.0% YTD, showing resilience. Petrochemicals at -8.3% suggest caution due to ongoing declines.</p>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>Economic Analysis</h2>
+        <div class="section-content">
+            <ul>
+                <li><strong>GDP Growth:</strong> 3.7% (Q1 2025)</li>
+                <li><strong>Inflation Rate:</strong> 2.3% (April 2025)</li>
+                <li><strong>Oil Price (Brent):</strong> $73/barrel (May 24, 2025)</li>
+                <li><strong>Unemployment Rate:</strong> 5.6% (Q1 2025)</li>
+            </ul>
+            <div class="chart-container">
+                <canvas id="economyRadarChart"></canvas>
+            </div>
+            <p><strong>AI Insight:</strong> Economic stability supports growth, with oil prices at $73/barrel boosting Energy sector performance.</p>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>Important Events & News</h2>
+        <div class="section-content">
+            <h3>Events</h3>
+            <ul class="event-list">
+                <li><strong>May 24, 2025</strong>: Saudi Vision 2030 reports 65% completion milestone.</li>
+                <li><strong>May 23, 2025</strong>: OPEC+ confirms output stability at 400,000 bpd.</li>
+                <li><strong>May 20, 2025</strong>: U.S.-Saudi trade talks secure $1.2T investment.</li>
+            </ul>
+            <h3>Newsfeed</h3>
+            <div class="newsfeed">
+                <p>Saudi Aramco announces record profits | OPEC+ maintains oil output | Vision 2030 boosts investor confidence</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>Global Markets Indices</h2>
+        <div class="section-content">
+            <div class="global-indices">
+                <div class="index-item">
+                    <h3>S&P 500</h3>
+                    <p>5,455.30</p>
+                    <p class="stock-change positive">+0.3%</p>
+                </div>
+                <div class="index-item">
+                    <h3>FTSE 100</h3>
+                    <p>8,325.10</p>
+                    <p class="stock-change positive">+0.05%</p>
+                </div>
+                <div class="index-item">
+                    <h3>Nikkei 225</h3>
+                    <p>38,700.50</p>
+                    <p class="stock-change positive">+0.5%</p>
+                </div>
+            </div>
+            <div class="chart-container">
+                <canvas id="globalIndicesChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>Top Stock Movers</h2>
+        <div class="section-content">
+            <div class="top-movers">
+                <div class="mover-item">
+                    <h3>Top Gainers</h3>
+                    <p>Saudi Aramco: +2.8% (Vol: 12.5M)</p>
+                    <p>Al Rajhi Bank: +2.3% (Vol: 8.9M)</p>
+                </div>
+                <div class="mover-item">
+                    <h3>Top Losers</h3>
+                    <p>SABIC: -2.0% (Vol: 7.2M)</p>
+                    <p>STC: -1.5% (Vol: 5.1M)</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>Technical Analysis</h2>
+        <div class="section-content">
+            <div class="technical-analysis">
+                <p><strong>RSI (14):</strong> 48.5 (Neutral)</p>
+                <p><strong>50-Day MA:</strong> 11,200</p>
+                <p><strong>200-Day MA:</strong> 11,300</p>
+                <p><strong>Support:</strong> 11,150 | <strong>Resistance:</strong> 11,300</p>
+                <p><strong>AI Insight:</strong> TASI at 11,188.74 is near support at 11,150; a break below could signal further decline.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>AI Market Insights</h2>
+        <div class="section-content">
+            <div class="ai-insight">
+                <strong>Daily Outlook:</strong> TASI may see a 2% rise by June 2025, led by Energy. <span class="signal bullish">Bullish Signal</span>
+            </div>
+            <div class="ai-insight">
+                <strong>Sector Outlook:</strong> Energy at -5.0% YTD shows resilience; Petrochemicals at -8.3% indicate caution. <span class="signal neutral">Neutral Signal</span>
+            </div>
+            <div class="ai-insight">
+                <strong>Volatility:</strong> 3.1% over 30 days, Risk Level: Low (3.3/10).
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>Portfolio Snapshot</h2>
+        <div class="section-content">
+            <div class="portfolio-snapshot">
+                <p><strong>Total Value:</strong> $25,000 (Sample)</p>
+                <p><strong>Daily Change:</strong> +0.5% ($125)</p>
+                <p><strong>Top Holding:</strong> Saudi Aramco (40%)</p>
+                <p><strong>AI Tip:</strong> Monitor Petrochemicals; consider rebalancing if declines exceed -9%.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="chatbot-section">
+        <h2>AI Chatbot – Ask About the Market</h2>
+        <div class="chatbot-content">
+            <div class="chatbot-messages" id="chatbotMessages">
+                <div class="chatbot-message bot">Hello! I'm here to assist with market analysis, portfolio insights, stock education, and more. What would you like to know?</div>
+            </div>
+        </div>
+        <div class="chatbot-input">
+            <input type="text" id="chatbotInput" placeholder="Ask about TASI, portfolio, stocks, or education...">
+            <button onclick="sendMessage()">Send</button>
+        </div>
+    </div>
+
+    <footer>
+        <p>Powered by <a href="https://example.com/mubasher-ai" target="_blank">Mubasher AI</a></p>
+        <p>Data sourced from web information as of May 24, 2025. For informational purposes only, not financial advice. Consult a professional.</p>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom"></script>
+    <script>
+        window.onerror = function (msg, url, lineNo, columnNo, error) {
+            console.error(`Error: ${msg}\nURL: ${url}\nLine: ${lineNo}\nColumn: ${columnNo}\nStack: ${error?.stack || 'No stack trace'}`);
+            document.getElementById('error-message').textContent = 'An error occurred. Please refresh or contact support.';
+            document.getElementById('error-message').style.display = 'block';
+            return false;
+        };
+
+        function createGradient(ctx, chartArea, colorStart, colorEnd) {
+            if (!chartArea || !chartArea.bottom || !chartArea.top) {
+                return colorStart;
+            }
+            const height = chartArea.bottom - chartArea.top;
+            const gradient = ctx.createLinearGradient(0, chartArea.bottom, 0, chartArea.top);
+            gradient.addColorStop(0, colorStart);
+            gradient.addColorStop(1, colorEnd);
+            return gradient;
+        }
+
+        function handleChartClick(event, chart, prefix) {
+            const points = chart.getElementsAtEventForMode(event, 'nearest', { intersect: true }, true);
+            if (points.length) {
+                const point = points[0];
+                const dataset = chart.data.datasets[point.datasetIndex];
+                const value = dataset.data[point.index];
+                const label = chart.data.labels[point.index];
+                alert(`${prefix}: ${dataset.label} - ${label || 'N/A'} - Value: ${value}`);
+            }
+        }
+
+        const tasiTrendData = Array.from({ length: 30 }, (_, i) => {
+            const date = new Date('2025-05-24');
+            date.setDate(date.getDate() - (29 - i));
+            return { date: date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }), value: 11188.74 - (Math.random() * 100 - 50) };
+        });
+        const sectorData = {
+            labels: ['Energy', 'Banking', 'Petrochemicals', 'Others'],
+            performance: [-5.0, -5.5, -8.3, -7.0],
+            marketCap: [42, 28, 15, 15],
+            volatility: [3.1, 2.4, 4.3, 3.2]
+        };
+        const economyData = {
+            labels: ['GDP Growth', 'Inflation', 'Oil Price', 'Unemployment'],
+            data: [3.7, 2.3, 73, 5.6],
+            normalized: [3.7 / 5 * 100, 2.3 / 5 * 100, 73 / 100 * 100, 5.6 / 10 * 100]
+        };
+        const globalIndicesData = {
+            labels: ['S&P 500', 'FTSE 100', 'Nikkei 225'],
+            changes: [0.3, 0.05, 0.5]
+        };
+        const gainerData1 = [100, 101, 102, 102.8, 104.5];
+        const gainerData2 = [50, 51, 52, 52.5, 53.5];
+        const loserData1 = [80, 79, 78.5, 78.2, 77.6];
+        const loserData2 = [60, 59.5, 59, 58.8, 58.5];
+
+        const charts = [];
+        const tasiTrendChart = new Chart(document.getElementById('tasiTrendChart'), {
+            type: 'line',
+            data: {
+                labels: tasiTrendData.map(d => d.date),
+                datasets: [{
+                    label: 'TASI Index',
+                    data: tasiTrendData.map(d => d.value),
+                    borderColor: '#1e3a8a',
+                    backgroundColor: (ctx) => createGradient(ctx.chart.ctx, ctx.chart.chartArea, 'rgba(30,58,138,0.1)', 'rgba(30,58,138,0.3)'),
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 3,
+                    pointHoverRadius: 5,
+                    pointBackgroundColor: '#ffffff',
+                    pointBorderWidth: 1
+                }]
+            },
+            options: {
+                animation: { duration: 1000, easing: 'easeOutQuad' },
+                plugins: {
+                    tooltip: { mode: 'nearest', intersect: false, backgroundColor: 'rgba(0,0,0,0.8)', titleColor: '#fff', bodyColor: '#fff', cornerRadius: 6, padding: 8 },
+                    zoom: { zoom: { wheel: { enabled: true }, pinch: { enabled: true }, mode: 'x' }, pan: { enabled: true, mode: 'x' } },
+                    title: { display: true, text: 'TASI Index Trend (30 Days)', font: { size: 11, weight: '500', family: 'Roboto' }, color: '#1e3a8a' }
+                },
+                scales: { x: { grid: { color: '#e0e0e0' }, ticks: { font: { size: 8, family: 'Roboto' }, color: '#666666' } }, y: { grid: { color: '#e0e0e0' }, ticks: { font: { size: 8, family: 'Roboto' }, color: '#666666' } } },
+                onClick: (e, _, chart) => handleChartClick(e, chart, 'TASI Trend')
+            }
+        });
+        charts.push(tasiTrendChart);
+
+        const sectorPerformanceChart = new Chart(document.getElementById('sectorPerformanceChart'), {
+            type: 'bar',
+            data: {
+                labels: sectorData.labels,
+                datasets: [{
+                    label: 'YTD Performance (%)',
+                    data: sectorData.performance,
+                    backgroundColor: (ctx) => createGradient(ctx.chart.ctx, ctx.chart.chartArea, '#1e3a8a', '#60a5fa'),
+                    borderRadius: 6,
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                animation: { duration: 1000, easing: 'easeOutQuad' },
+                plugins: { tooltip: { mode: 'nearest', intersect: false, backgroundColor: 'rgba(0,0,0,0.8)', titleColor: '#fff', bodyColor: '#fff', cornerRadius: 6, padding: 8 }, title: { display: true, text: 'Sector Performance (YTD 2025)', font: { size: 11, weight: '500', family: 'Roboto' }, color: '#1e3a8a' } },
+                scales: { x: { grid: { display: false }, ticks: { font: { size: 8, family: 'Roboto' }, color: '#666666' } }, y: { grid: { color: '#e0e0e0' }, ticks: { font: { size: 8, family: 'Roboto' }, color: '#666666' } } },
+                onClick: (e, _, chart) => handleChartClick(e, chart, 'Sector Performance')
+            }
+        });
+        charts.push(sectorPerformanceChart);
+
+        const marketCapChart = new Chart(document.getElementById('marketCapChart'), {
+            type: 'doughnut',
+            data: {
+                labels: sectorData.labels,
+                datasets: [{
+                    label: 'Market Cap (%)',
+                    data: sectorData.marketCap,
+                    backgroundColor: ['#1e3a8a', '#60a5fa', '#93c5fd', '#bfdbfe'],
+                    borderColor: '#ffffff',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                animation: { duration: 1000, easing: 'easeOutQuad' },
+                plugins: { tooltip: { mode: 'nearest', intersect: false, backgroundColor: 'rgba(0,0,0,0.8)', titleColor: '#fff', bodyColor: '#fff', cornerRadius: 6, padding: 8 }, title: { display: true, text: 'Market Capitalization by Sector', font: { size: 11, weight: '500', family: 'Roboto' }, color: '#1e3a8a' } },
+                onClick: (e, _, chart) => handleChartClick(e, chart, 'Market Cap')
+            }
+        });
+        charts.push(marketCapChart);
+
+        const volatilityChart = new Chart(document.getElementById('volatilityChart'), {
+            type: 'bar',
+            data: {
+                labels: sectorData.labels,
+                datasets: [{
+                    label: 'Volatility (%)',
+                    data: sectorData.volatility,
+                    backgroundColor: (ctx) => createGradient(ctx.chart.ctx, ctx.chart.chartArea, '#1e3a8a', '#60a5fa'),
+                    borderRadius: 6,
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                animation: { duration: 1000, easing: 'easeOutQuad' },
+                plugins: { tooltip: { mode: 'nearest', intersect: false, backgroundColor: 'rgba(0,0,0,0.8)', titleColor: '#fff', bodyColor: '#fff', cornerRadius: 6, padding: 8 }, title: { display: true, text: 'Sector Volatility (2025)', font: { size: 11, weight: '500', family: 'Roboto' }, color: '#1e3a8a' } },
+                scales: { x: { grid: { display: false }, ticks: { font: { size: 8, family: 'Roboto' }, color: '#666666' } }, y: { grid: { color: '#e0e0e0' }, ticks: { font: { size: 8, family: 'Roboto' }, color: '#666666' } } },
+                onClick: (e, _, chart) => handleChartClick(e, chart, 'Sector Volatility')
+            }
+        });
+        charts.push(volatilityChart);
+
+        const economyRadarChart = new Chart(document.getElementById('economyRadarChart'), {
+            type: 'radar',
+            data: {
+                labels: economyData.labels,
+                datasets: [{
+                    label: 'Economic Indicators',
+                    data: economyData.normalized,
+                    backgroundColor: 'rgba(30,58,138,0.2)',
+                    borderColor: '#1e3a8a',
+                    borderWidth: 2,
+                    pointBackgroundColor: '#1e3a8a',
+                    pointBorderColor: '#ffffff',
+                    pointBorderWidth: 1
+                }]
+            },
+            options: {
+                animation: { duration: 1000, easing: 'easeOutQuad' },
+                plugins: { tooltip: { mode: 'nearest', intersect: false, backgroundColor: 'rgba(0,0,0,0.8)', titleColor: '#fff', bodyColor: '#fff', cornerRadius: 6, padding: 8 }, title: { display: true, text: 'Economic Indicators (May 2025)', font: { size: 11, weight: '500', family: 'Roboto' }, color: '#1e3a8a' } },
+                scales: { r: { angleLines: { color: '#e0e0e0' }, grid: { color: '#e0e0e0' }, ticks: { display: false }, pointLabels: { font: { size: 8, family: 'Roboto' }, color: '#666666' } } },
+                onClick: (e, _, chart) => handleChartClick(e, chart, 'Economic Indicator')
+            }
+        });
+        charts.push(economyRadarChart);
+
+        const globalIndicesChart = new Chart(document.getElementById('globalIndicesChart'), {
+            type: 'bar',
+            data: {
+                labels: globalIndicesData.labels,
+                datasets: [{
+                    label: 'Change (%)',
+                    data: globalIndicesData.changes,
+                    backgroundColor: globalIndicesData.changes.map(v => v >= 0 ? '#10b981' : '#ef4444'),
+                    borderRadius: 6,
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                animation: { duration: 1000, easing: 'easeOutQuad' },
+                plugins: { tooltip: { mode: 'nearest', intersect: false, backgroundColor: 'rgba(0,0,0,0.8)', titleColor: '#fff', bodyColor: '#fff', cornerRadius: 6, padding: 8 }, title: { display: true, text: 'Global Indices Performance', font: { size: 11, weight: '500', family: 'Roboto' }, color: '#1e3a8a' } },
+                scales: { x: { grid: { display: false }, ticks: { font: { size: 8, family: 'Roboto' }, color: '#666666' } }, y: { grid: { color: '#e0e0e0' }, ticks: { font: { size: 8, family: 'Roboto' }, color: '#666666' } } },
+                onClick: (e, _, chart) => handleChartClick(e, chart, 'Global Indices')
+            }
+        });
+        charts.push(globalIndicesChart);
+
+        const gainerChart1 = new Chart(document.getElementById('gainerChart1'), {
+            type: 'line',
+            data: {
+                labels: ['1', '2', '3', '4', '5'],
+                datasets: [{
+                    data: gainerData1,
+                    borderColor: '#10b981',
+                    fill: false,
+                    tension: 0.4,
+                    pointRadius: 0
+                }]
+            },
+            options: { plugins: { legend: { display: false }, tooltip: { enabled: false } }, scales: { x: { display: false }, y: { display: false } } }
+        });
+        charts.push(gainerChart1);
+
+        const gainerChart2 = new Chart(document.getElementById('gainerChart2'), {
+            type: 'line',
+            data: {
+                labels: ['1', '2', '3', '4', '5'],
+                datasets: [{
+                    data: gainerData2,
+                    borderColor: '#10b981',
+                    fill: false,
+                    tension: 0.4,
+                    pointRadius: 0
+                }]
+            },
+            options: { plugins: { legend: { display: false }, tooltip: { enabled: false } }, scales: { x: { display: false }, y: { display: false } } }
+        });
+        charts.push(gainerChart2);
+
+        const loserChart1 = new Chart(document.getElementById('loserChart1'), {
+            type: 'line',
+            data: {
+                labels: ['1', '2', '3', '4', '5'],
+                datasets: [{
+                    data: loserData1,
+                    borderColor: '#ef4444',
+                    fill: false,
+                    tension: 0.4,
+                    pointRadius: 0
+                }]
+            },
+            options: { plugins: { legend: { display: false }, tooltip: { enabled: false } }, scales: { x: { display: false }, y: { display: false } } }
+        });
+        charts.push(loserChart1);
+
+        const loserChart2 = new Chart(document.getElementById('loserChart2'), {
+            type: 'line',
+            data: {
+                labels: ['1', '2', '3', '4', '5'],
+                datasets: [{
+                    data: loserData2,
+                    borderColor: '#ef4444',
+                    fill: false,
+                    tension: 0.4,
+                    pointRadius: 0
+                }]
+            },
+            options: { plugins: { legend: { display: false }, tooltip: { enabled: false } }, scales: { x: { display: false }, y: { display: false } } }
+        });
+        charts.push(loserChart2);
+
+        function sendMessage() {
+            const input = document.getElementById('chatbotInput');
+            const messages = document.getElementById('chatbotMessages');
+            const userMessage = input.value.trim().toLowerCase();
+            if (!userMessage) return;
+
+            const userDiv = document.createElement('div');
+            userDiv.className = 'chatbot-message user';
+            userDiv.textContent = input.value;
+            messages.appendChild(userDiv);
+
+            let botResponse = '';
+            if (userMessage.includes('tasi')) {
+                botResponse = 'TASI Index is at 11,188.74, down 1.02% today. It’s showing resilience with a potential 2% rise by June 2025, driven by Energy.';
+            } else if (userMessage.includes('portfolio')) {
+                botResponse = 'Your portfolio value is $25,000, up 0.5% today. Top holding is Saudi Aramco at 40%. Monitor Petrochemicals for rebalancing if declines exceed -9%.';
+            } else if (userMessage.includes('recommendation')) {
+                botResponse = 'Based on current trends, Energy shows a bullish signal at -5.0% YTD, while Petrochemicals at -8.3% suggest a neutral signal. Diversify wisely.';
+            } else if (userMessage.includes('education')) {
+                botResponse = 'The stock market is where shares of companies are bought and sold. Key concepts include diversification, market trends, and risk management. Learn more about TASI’s sectors for a start!';
+            } else if (userMessage.includes('analysis') || userMessage.includes('stock')) {
+                botResponse = 'Saudi Aramco is up 2.8% today, showing strength. SABIC is down -2.0%, indicating caution. Check technical indicators like RSI (48.5) for deeper insights.';
+            } else {
+                botResponse = 'Ask about TASI, your portfolio, stock recommendations, market education, or analysis for tailored insights!';
+            }
+
+            const botDiv = document.createElement('div');
+            botDiv.className = 'chatbot-message bot';
+            botDiv.textContent = botResponse;
+            messages.appendChild(botDiv);
+
+            messages.scrollTop = messages.scrollHeight;
+            input.value = '';
+        }
+
+        document.getElementById('chatbotInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') sendMessage();
+        });
+    </script>
+</body>
+</html>
